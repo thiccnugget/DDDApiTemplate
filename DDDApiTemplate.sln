@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35506.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireOrchestrator", "DDDApiAspire\AspireOrchestrator.csproj", "{8290C11B-2016-4451-8B93-DBD5E8FDD726}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireOrchestrator", "DDDApiTemplate\AspireOrchestrator.csproj", "{8290C11B-2016-4451-8B93-DBD5E8FDD726}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApi", "TestApi\TestApi.csproj", "{203D074E-D703-44E8-978E-87A5119AB19B}"
 EndProject
@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{416BD43D-F9F8-428E-B786-BBF9E2B2FF5A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D5CB957D-E4C9-4D8D-84D5-71E1FBADC672}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "layers", "layers", "{D5CB957D-E4C9-4D8D-84D5-71E1FBADC672}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elementi di soluzione", "Elementi di soluzione", "{CC16E75B-E181-487C-91BF-E6CADF688A10}"
 	ProjectSection(SolutionItems) = preProject

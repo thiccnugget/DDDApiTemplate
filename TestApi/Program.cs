@@ -1,10 +1,15 @@
 
+using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 using Serilog;
+using StackExchange.Redis;
+using System.Text;
+using TestApi.Services;
 
 namespace TestApi;
 
@@ -23,41 +28,12 @@ public class Program
 
         builder.Configuration.AddConfiguration(config);
 
-        // Add OpenTelemetry metrics and tracing
-        if (!string.IsNullOrEmpty(config.GetValue<string>("OpenTelemetry:Endpoint")))
-        {
-            Uri optlEndpoint = new Uri(config.GetValue<string>("OpenTelemetry:Endpoint"));
-
-            builder.Services.AddOpenTelemetry()
-                .WithMetrics(metrics => metrics
-                    .AddHttpClientInstrumentation()
-                    .AddAspNetCoreInstrumentation()
-                    .AddOtlpExporter(options => options.Endpoint = optlEndpoint)
-                    )
-                .WithTracing(tracing => tracing
-                    .AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation()
-                    .AddOtlpExporter(options => options.Endpoint = optlEndpoint)
-                    );
-        }
-
         builder.Host.UseSerilog((context, logger) => logger.ReadFrom.Configuration(context.Configuration));
-        
-        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-                options.Authority = config["Jwt:Authority"];
-                options.Audience = config["Jwt:Audience"];
-                options.IncludeErrorDetails = false;
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateAudience = true,
-                    ValidateIssuer = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ClockSkew = TimeSpan.FromSeconds(30),
-                };
-            });
+
+        builder.Services.ConfigureInfrastructureServices(config);
+        builder.Services.ConfigureTelemetry(config);
+        builder.Services.ConfigureAuthorization(config);
+
 
         builder.Services.AddControllers();
 
