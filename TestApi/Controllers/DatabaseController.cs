@@ -6,7 +6,7 @@ namespace TestApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class DatabaseController : Controller
+    public class DatabaseController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<DatabaseController> _logger;
@@ -17,7 +17,7 @@ namespace TestApi.Controllers
             _logger = logger;
         }
 
-        [HttpPost("/bruh")]
+        [HttpPost("Save")]
         public IActionResult Save([FromBody]UserEntity user)
         {
             _unitOfWork.BeginTransaction();
@@ -26,7 +26,7 @@ namespace TestApi.Controllers
             return Ok(user);
         }
 
-        [HttpGet("/ciao/{username}")]
+        [HttpGet("Retrieve/{username}")]
         public IActionResult Get(string username)
         {
             var user = _unitOfWork.UserRepository.FindByUsername(username);

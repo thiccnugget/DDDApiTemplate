@@ -9,6 +9,7 @@ using OpenTelemetry.Trace;
 using Serilog;
 using StackExchange.Redis;
 using System.Text;
+using TestApi.MinimalApis;
 using TestApi.Services;
 
 namespace TestApi;
@@ -36,6 +37,7 @@ public class Program
 
 
         builder.Services.AddControllers();
+        builder.Services.AddRouting();
 
 #if DEBUG
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -52,7 +54,11 @@ public class Program
 
         app.UseSerilogRequestLogging();
         app.UseAuthorization();
+
+        app.AddHealthChecks();
+
         app.MapControllers();
+        app.UseRouting();
 
         app.Run();
     }

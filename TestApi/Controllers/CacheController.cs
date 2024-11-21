@@ -18,7 +18,7 @@ public class CacheController : ControllerBase
         _logger = logger;
     }
 
-    [HttpPost("/Save")]
+    [HttpPost("Save")]
     public async Task<IActionResult> Save([FromBody] Dictionary<string, string> data)
     {
         foreach (string key in data.Keys)
@@ -28,7 +28,7 @@ public class CacheController : ControllerBase
         return Ok();
     }
 
-    [HttpGet("/Retrieve")]
+    [HttpGet("Retrieve")]
     public async Task<IActionResult> Retrieve(string key)
     {
         var value = await _cacheService.Get<string>(key);
