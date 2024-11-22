@@ -7,7 +7,6 @@
             var group = app.MapGroup("/health");
             
             group.MapGet("/", () => Results.Ok("OK")).ExcludeFromDescription();
-            group.MapGet("/ping", () => Results.Ok("Pong")).ExcludeFromDescription();
         }
     }
 }

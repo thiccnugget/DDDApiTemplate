@@ -14,6 +14,8 @@ var database = builder.AddSqlServer("database", port: 1433)
 
 // Add your API project with health checks
 builder.AddProject<Projects.TestApi>("testapi")
+    .WithHttpHealthCheck("/health")
+    .WithOtlpExporter()
     .WithReference(cache)
     .WithReference(database)
     .WaitFor(cache)

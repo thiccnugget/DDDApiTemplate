@@ -18,7 +18,6 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        // Load the configuration as needed
         IConfiguration config = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true, reloadOnChange: true)
@@ -34,7 +33,6 @@ public class Program
         builder.Services.ConfigureInfrastructureServices(config);
         builder.Services.ConfigureTelemetry(config);
         builder.Services.ConfigureAuthorization(config);
-
 
         builder.Services.AddControllers();
         builder.Services.AddRouting();
