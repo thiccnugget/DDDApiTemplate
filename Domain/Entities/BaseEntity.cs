@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Database.Entities
+namespace Domain.Entities
 {
     public abstract class BaseEntity
     {
@@ -16,7 +16,7 @@ namespace Infrastructure.Database.Entities
         public Guid Id { get; set; } = UuidExtensions.Uuid7.Guid();
 
         [Required]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime CreatedAt { get; set; }
 
         [Required]

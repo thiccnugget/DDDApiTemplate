@@ -1,13 +1,8 @@
-﻿using Infrastructure.Database.Entities;
-using Infrastructure.Interfaces;
+﻿using Domain.Entities;
+using Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Infrastructure.Database.Repositories
+namespace Infrastructure.Persistence.Repositories
 {
     public class UserRepository : BaseRepository<UserEntity>, IUserRepository
     {

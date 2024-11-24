@@ -1,7 +1,6 @@
-using Infrastructure;
-using Infrastructure.Database.Entities;
-using Infrastructure.Interfaces;
+using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Application.Interfaces;
 
 namespace TestApi.Controllers;
 
@@ -21,10 +20,8 @@ public class CacheController : ControllerBase
     [HttpPost("Save")]
     public async Task<IActionResult> Save([FromBody] Dictionary<string, string> data)
     {
-        foreach (string key in data.Keys)
-        {
-            await _cacheService.Set(key, data[key], TimeSpan.FromMinutes(5));
-        }
+        
+        await Task.WhenAll(data.Keys.Select(async key => await _cacheService.Set(key, data[key], TimeSpan.FromMinutes(5))));
         return Ok();
     }
 

@@ -1,23 +1,16 @@
-using Aspire.Hosting;
-
 var builder = DistributedApplication.CreateBuilder(args);
 
-// Add Redis with more specific configuration
-var cache = builder.AddRedis("redis")
-    .WithEnvironment("REDIS_PASSWORD", "SuperInsecure!")
-    .WithEndpoint("redis", x => x.TargetPort = 6379 );
+var cache = builder.AddRedis(name: "redis");
 
-// Add SQL Server with more robust configuration
-var database = builder.AddSqlServer("database", port: 1433)
+var database = builder.AddPostgres(name: "database")
     .WithDataVolume()
-    .AddDatabase("testDb");
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithPgAdmin();
 
-// Add your API project with health checks
 builder.AddProject<Projects.TestApi>("testapi")
     .WithHttpHealthCheck("/health")
-    .WithOtlpExporter()
-    .WithReference(cache)
-    .WithReference(database)
+    .WithReference(source: cache, connectionName: "Redis")
+    .WithReference(source: database, connectionName: "Database")
     .WaitFor(cache)
     .WaitFor(database);
 

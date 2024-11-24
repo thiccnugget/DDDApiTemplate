@@ -1,16 +1,14 @@
 
-using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 using Serilog;
-using StackExchange.Redis;
 using System.Text;
 using TestApi.MinimalApis;
 using TestApi.Services;
+using Infrastructure;
 
 namespace TestApi;
 

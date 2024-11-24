@@ -1,4 +1,4 @@
-﻿using Infrastructure.Interfaces;
+﻿using Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -13,29 +13,19 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Cache
 {
-    internal class CacheService : ICacheService
+    internal class RedisCacheService : ICacheService
     {
-        private readonly ILogger<CacheService> _logger;
-        private readonly IConnectionMultiplexer _cache;
-
+        private readonly ILogger<RedisCacheService> _logger;
         private readonly IDatabase _db;
         private readonly TimeSpan DefaultExpiry;
 
-        public CacheService(IConnectionMultiplexer cache, ILogger<CacheService> logger, IConfiguration config)
+        public RedisCacheService(IConnectionMultiplexer cache, ILogger<RedisCacheService> logger, IConfiguration config)
         {
             _logger = logger;
-            _cache = cache;
-            _db = _cache.GetDatabase();
+            _db = cache.GetDatabase();
 
-            string? expiry = config.GetValue<string>("Cache:DefaultExpirySeconds");
-            if (expiry is not null)
-            {
-                DefaultExpiry = TimeSpan.FromSeconds(int.Parse(expiry));
-            }
-            else
-            {
-                DefaultExpiry = TimeSpan.FromSeconds(300);
-            }
+            long? expiry = config.GetValue<long>("Cache:DefaultExpirySeconds");
+            DefaultExpiry = TimeSpan.FromSeconds(expiry ?? 300);
         }
 
         public async Task<T?> Get<T>(string key)
@@ -51,7 +41,7 @@ namespace Infrastructure.Cache
             }
             catch
             {
-                _logger.LogWarning("Failed to get key {@value} from cache", key);
+                _logger.LogWarning("Failed to get key {key} from cache", key);
                 return default;
             }
         }
@@ -65,9 +55,10 @@ namespace Infrastructure.Cache
             }
             catch
             {
-                _logger.LogWarning("Failed to set key {@value} in cache", key);
+                _logger.LogWarning("Failed to set key {key} in cache", key);
             }
         }
+
 
         public async Task<T> GetOrCreate<T>(string key, Func<Task<T>> createItem, TimeSpan? expiry = null)
         {
@@ -94,30 +85,9 @@ namespace Infrastructure.Cache
             }
         }
 
-        public async Task Clear()
+        public async Task<bool> Exists(string key)
         {
-            EndPoint[] endpoints;
-            try
-            {
-                endpoints = _cache.GetEndPoints();
-            }
-            catch
-            {
-                _logger.LogWarning("Failed to retrieve endpoints from cache");
-                return;
-            }
-
-            await Parallel.ForEachAsync(endpoints, async (endpoint, token) =>
-            {
-                try
-                {
-                    await _cache.GetServer(endpoint).FlushDatabaseAsync();
-                }
-                catch
-                {
-                    _logger.LogWarning("Failed to clear cache on endpoint {@value}", endpoint);
-                }
-            });  
+            return await _db.KeyExistsAsync(key);
         }
     }
 }

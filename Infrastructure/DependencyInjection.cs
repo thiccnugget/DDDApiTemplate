@@ -1,6 +1,6 @@
 ﻿using Infrastructure.Cache;
-using Infrastructure.Database;
-using Infrastructure.Interfaces;
+using Infrastructure.Persistence;
+using Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,15 +8,15 @@ using StackExchange.Redis;
 
 namespace Infrastructure
 {
-    public static class InfrastructureServicesExtension
+    public static class DependencyInjection
     {
         public static void ConfigureInfrastructureServices(this IServiceCollection services, IConfiguration config)
         {
-            services.AddDbContext<AppDbContext>(options => options.UseSqlServer(config.GetConnectionString("Database")));
+            services.AddDbContext<AppDbContext>(options => options.UseNpgsql(config.GetConnectionString("Database")));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-
+            
             services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(config.GetConnectionString("Redis")));
-            services.AddSingleton<ICacheService, CacheService>();
+            services.AddSingleton<ICacheService, RedisCacheService>();
 
         }
     }

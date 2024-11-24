@@ -1,5 +1,5 @@
-﻿using Infrastructure.Database.Entities;
-using Infrastructure.Interfaces;
+﻿using Application.Interfaces;
+using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace TestApi.Controllers
@@ -18,18 +18,24 @@ namespace TestApi.Controllers
         }
 
         [HttpPost("Save")]
-        public IActionResult Save([FromBody]UserEntity user)
+        public async Task<IActionResult> Save([FromBody]UserEntity user)
         {
-            _unitOfWork.BeginTransaction();
-            _unitOfWork.UserRepository.Save(user);
-            _unitOfWork.CommitTransaction();
+            _unitOfWork.UserRepository.Add(user);
+            await _unitOfWork.SaveAsTransaction();
+            return Ok(user.Id);
+        }
+
+        [HttpGet("Retrieve")]
+        public async Task<IActionResult> Get()
+        {
+            IEnumerable<UserEntity> user = await _unitOfWork.UserRepository.Find();
             return Ok(user);
         }
 
-        [HttpGet("Retrieve/{username}")]
-        public IActionResult Get(string username)
+        [HttpGet("Retrieve/{id}")]
+        public async Task<IActionResult> Get(Guid id)
         {
-            var user = _unitOfWork.UserRepository.FindByUsername(username);
+            UserEntity? user = await _unitOfWork.UserRepository.FindById(id);
             return user is null ? NotFound() : Ok(user);
         }
     }

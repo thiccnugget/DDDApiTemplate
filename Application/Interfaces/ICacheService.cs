@@ -4,17 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Interfaces
+namespace Application.Interfaces
 {
     public interface ICacheService
     {
         public Task<T?> Get<T>(string key);
-        public Task Set<T>(string key, T value, TimeSpan? expiry);
-
+        public Task Set<T>(string key, T value, TimeSpan? expiry = null);
         public Task Remove(string key);
-
-        public Task Clear();
-
-        public Task<T> GetOrCreate<T>(string key, Func<Task<T>> factory, TimeSpan? expiry);
+        public Task<T> GetOrCreate<T>(string key, Func<Task<T>> factory, TimeSpan? expiry = null);
     }
 }
