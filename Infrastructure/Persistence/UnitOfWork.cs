@@ -9,14 +9,13 @@ public class UnitOfWork : IUnitOfWork
     private readonly AppDbContext _context;
     private IUserRepository? _userRepository;
     private IDbContextTransaction? _transaction;
-    private bool _disposed;
 
     public UnitOfWork(AppDbContext context)
     {
         _context = context;
     }
 
-    public IUserRepository UserRepository => _userRepository is null ? new UserRepository(_context) : _userRepository; 
+    public IUserRepository UserRepository => _userRepository ??= new UserRepository(_context);
 
     public async Task<int> SaveChangesAsync()
     {
@@ -60,32 +59,23 @@ public class UnitOfWork : IUnitOfWork
 
     public async Task<int> SaveAsTransaction()
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        await this.BeginTransaction();
         try
         {
-            var result = await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
+            var result = await this.SaveChangesAsync();
+            await this.CommitTransaction();
             return result;
         }
         catch
         {
-            await transaction.RollbackAsync();
+            await this.RollbackTransaction();
             throw;
         }
     }
 
     public void Dispose()
     {
-        Dispose(true);
+        _context.Dispose();
         GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!_disposed && disposing)
-        {
-            _context.Dispose();
-        }
-        _disposed = true;
     }
 }

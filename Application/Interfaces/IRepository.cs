@@ -17,7 +17,11 @@ namespace Application.Interfaces
         public Task<PagedResultDto<T>> FindPaged(Expression<Func<T, bool>> expression, int page = 1, int limit = 20);
         public Task<long> Count(Expression<Func<T, bool>>? expression);
         public void Add(T entity);
+        public void AddRange(IEnumerable<T> entities);
         public void Update(T entity);
+        public void UpdateRange(IEnumerable<T> entities);
         public void Delete(T entity);
+        public void DeleteRange(IEnumerable<T> entities);
+
     }
 }

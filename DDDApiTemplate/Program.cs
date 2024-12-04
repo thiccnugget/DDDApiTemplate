@@ -4,8 +4,7 @@ var cache = builder.AddRedis(name: "redis");
 
 var database = builder.AddPostgres(name: "database")
     .WithDataVolume()
-    .WithLifetime(ContainerLifetime.Persistent)
-    .WithPgAdmin();
+    .WithLifetime(ContainerLifetime.Persistent);
 
 builder.AddProject<Projects.TestApi>("testapi")
     .WithHttpHealthCheck("/health")

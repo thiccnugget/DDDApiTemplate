@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence
 {
-
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
@@ -22,6 +21,7 @@ namespace Infrastructure.Persistence
                 entity.HasIndex(e => e.Email).IsUnique();
                 entity.Property(e => e.Role).IsRequired();
                 entity.Property(e => e.Password).IsRequired();
+                entity.Property(e => e.Salt).IsRequired();
                 entity.Property(e => e.CreatedAt)
                     .HasDefaultValueSql("CURRENT_TIMESTAMP")
                     .ValueGeneratedOnAdd();
