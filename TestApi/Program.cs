@@ -9,6 +9,9 @@ using System.Text;
 using TestApi.MinimalApis;
 using TestApi.Services;
 using Infrastructure;
+using Application.Services;
+using Domain;
+using Application;
 
 namespace TestApi;
 
@@ -26,11 +29,13 @@ public class Program
 
         builder.Configuration.AddConfiguration(config);
 
-        builder.Host.UseSerilog((context, logger) => logger.ReadFrom.Configuration(context.Configuration));
+        builder.Host.UseSerilog((_, logger) => logger.ReadFrom.Configuration(config));
 
-        builder.Services.ConfigureInfrastructureServices(config);
-        builder.Services.ConfigureTelemetry(config);
-        builder.Services.ConfigureAuthorization(config);
+        builder.Services.ConfigureInfrastructureServices(config)
+            .ConfigureDomainServices()
+            .ConfigureApplicationServices()
+            .ConfigureTelemetry(config)
+            .ConfigureAuth(config);
 
         builder.Services.AddControllers();
         builder.Services.AddRouting();
@@ -41,20 +46,22 @@ public class Program
         builder.Services.AddSwaggerGen();
 #endif
 
+        // Build the application once all services are registered
         WebApplication app = builder.Build();
 
 #if DEBUG
         app.UseSwagger();
         app.UseSwaggerUI();
 #endif
-
         app.UseSerilogRequestLogging();
-        app.UseAuthorization();
-
-        app.AddHealthChecks();
-
-        app.MapControllers();
         app.UseRouting();
+                
+        app.UseAuthorization();
+        app.UseAuthentication();
+        
+        app.MapControllers();
+        app.AddHealthChecks();
+        app.AddGenericEndpoint();
 
         app.Run();
     }

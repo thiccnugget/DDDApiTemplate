@@ -6,7 +6,7 @@ namespace TestApi.Services
 {
     internal static class ConfigureTelemetryExtension
     {
-        public static void ConfigureTelemetry(this IServiceCollection services, IConfiguration config)
+        public static IServiceCollection ConfigureTelemetry(this IServiceCollection services, IConfiguration config)
         {
             string? endpoint = config.GetValue<string>("OpenTelemetry:Endpoint");
 
@@ -28,6 +28,8 @@ namespace TestApi.Services
                         .AddOtlpExporter(options => options.Endpoint = optlEndpoint)
                     );
             }
+
+            return services;
         }
     }
 }

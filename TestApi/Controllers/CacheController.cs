@@ -1,6 +1,7 @@
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TestApi.Controllers;
 
@@ -21,7 +22,7 @@ public class CacheController : ControllerBase
     public async Task<IActionResult> Save([FromBody] Dictionary<string, string> data)
     {
         
-        await Task.WhenAll(data.Keys.Select(async key => await _cacheService.Set(key, data[key], TimeSpan.FromMinutes(5))));
+        await Task.WhenAll(data.Keys.Select(async key => await _cacheService.Set(key, data[key])));
         return Ok();
     }
 
