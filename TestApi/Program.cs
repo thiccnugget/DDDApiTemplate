@@ -1,17 +1,10 @@
-
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using OpenTelemetry.Logs;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Trace;
 using Serilog;
-using System.Text;
 using TestApi.MinimalApis;
 using TestApi.Services;
 using Infrastructure;
-using Application.Services;
 using Domain;
 using Application;
+using TestApi.Middlewares;
 
 namespace TestApi;
 
@@ -31,7 +24,9 @@ public class Program
 
         builder.Host.UseSerilog((_, logger) => logger.ReadFrom.Configuration(config));
 
-        builder.Services.ConfigureInfrastructureServices(config)
+        // Configure services of each layer of the application
+        builder.Services
+            .ConfigureInfrastructureServices(config)
             .ConfigureDomainServices()
             .ConfigureApplicationServices()
             .ConfigureTelemetry(config)
@@ -41,9 +36,7 @@ public class Program
         builder.Services.AddRouting();
 
 #if DEBUG
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        builder.Services.ConfigureSwaggerUI();
 #endif
 
         // Build the application once all services are registered
@@ -53,11 +46,14 @@ public class Program
         app.UseSwagger();
         app.UseSwaggerUI();
 #endif
+
         app.UseSerilogRequestLogging();
         app.UseRouting();
-                
-        app.UseAuthorization();
+
+        // Add middlewares BETWEEN routing and controllers/endpoints
+        app.UseMiddleware<RequestTimingMiddleware>();
         app.UseAuthentication();
+        app.UseAuthorization();
         
         app.MapControllers();
         app.AddHealthChecks();

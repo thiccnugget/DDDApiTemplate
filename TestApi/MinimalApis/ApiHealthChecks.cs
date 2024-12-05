@@ -1,12 +1,14 @@
-﻿namespace TestApi.MinimalApis
+﻿using Microsoft.AspNetCore.Authorization;
+
+namespace TestApi.MinimalApis
 {
     internal static class ApiHealthChecks
     {
         public static void AddHealthChecks(this WebApplication app)
-        {
+        { 
             var group = app.MapGroup("/health");
-            
-            group.MapGet("/", () => Results.Ok("OK")).ExcludeFromDescription();
+
+            group.MapGet("/", [AllowAnonymous] () => Results.Ok("OK")).ExcludeFromDescription();
         }
     }
 }

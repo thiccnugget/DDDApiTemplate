@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 
 namespace TestApi.Services
@@ -17,28 +19,42 @@ namespace TestApi.Services
                 throw new InvalidOperationException("JWT Secret key is missing");
             }
 
-            services.AddAuthentication(options =>
+            services.AddAuthorization(options =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
+                options.DefaultPolicy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+
+                options.AddPolicy("AdminOnly", policy =>
+                    policy
+                    .RequireAuthenticatedUser()
+                    .RequireRole("Admin"));
+
+                options.AddPolicy("UserOnly", policy =>
+                    policy
+                    .RequireAuthenticatedUser()
+                    .RequireRole("User"));
+
+            });
+
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
+                options.RequireHttpsMetadata = false;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtSettings.GetValue<string>("Issuer"),
-                    ValidAudience = jwtSettings.GetValue<string>("Audience"),
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-                    AuthenticationType = "Bearer"
+                    ValidIssuer = config["JwtSettings:Issuer"],
+                    ValidAudience = config["JwtSettings:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(config["JwtSettings:SecretKey"] ?? throw new InvalidOperationException("JWT Key not found"))),
+                    
                 };
             });
-
-            // Add authorization policies as needed
-            services.AddAuthorization(x => x.AddPolicy("AdminPolicy", p => p.RequireRole("Admin")));
 
             return services;
         }

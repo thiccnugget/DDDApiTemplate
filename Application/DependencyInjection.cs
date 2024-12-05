@@ -16,6 +16,7 @@ namespace Application
         public static IServiceCollection ConfigureApplicationServices(this IServiceCollection services)
         {
             services.AddScoped<UserAppService>();
+            services.AddScoped<IAuthService, AuthService>();
 
             return services;
         }
