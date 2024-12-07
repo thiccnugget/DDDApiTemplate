@@ -1,18 +1,21 @@
 ﻿using Application.Interfaces;
 using Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Persistence;
 
 public class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _context;
+    private readonly ILogger<UnitOfWork> _logger;
     private IUserRepository? _userRepository;
     private IDbContextTransaction? _transaction;
 
-    public UnitOfWork(AppDbContext context)
+    public UnitOfWork(AppDbContext context, ILogger<UnitOfWork> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public IUserRepository UserRepository => _userRepository ??= new UserRepository(_context);
@@ -32,6 +35,11 @@ public class UnitOfWork : IUnitOfWork
         try
         {
             await _transaction?.CommitAsync()!;
+        }
+        catch(Exception ex)
+        {
+            _logger.LogError("Rolling back transaction {@transactionId}. Error: {@error}", _transaction?.TransactionId, ex.Message);
+            await this.RollbackTransaction();
         }
         finally
         {
@@ -66,8 +74,9 @@ public class UnitOfWork : IUnitOfWork
             await this.CommitTransaction();
             return result;
         }
-        catch
+        catch(Exception ex)
         {
+            _logger.LogError("Rolling back transaction {@transactionId}. Error: {@error}", _transaction?.TransactionId, ex.Message);
             await this.RollbackTransaction();
             throw;
         }
