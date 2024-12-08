@@ -10,9 +10,9 @@ namespace Infrastructure.Persistence
         // requires a DbContextOptions object that is constructed inside the Infrastructure project.
         public AppDbContext CreateDbContext(string[] args)
         {
-            // When running the EF Core tools, the connection string should be passed as a CLI argument to avoid hardcoding it.
+            // When running the EF Core tools, the connection string should be passed as an environment variable to avoid hardcoding it.
             // It is required when running commands that interact directly with the database, such as Update-Database.
-            string connectionString = args.FirstOrDefault(string.Empty);
+            string connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ?? string.Empty;
 
             DbContextOptionsBuilder<AppDbContext> optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
             optionsBuilder.UseNpgsql(
