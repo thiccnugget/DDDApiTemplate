@@ -17,46 +17,60 @@ namespace Infrastructure.Persistence.Repositories
             _dbSet = _context.Set<T>();
         }
 
-        public virtual async Task<T?> FindOne(Expression<Func<T, bool>> expression, bool trackChanges = true)
+        // compilated query to find one entity by id
+        private static readonly Func<DbContext, Guid, Task<T?>> FindEntityByIdAsync = EF.CompileAsyncQuery((DbContext context, Guid id) =>
+            context.Set<T>().FirstOrDefault(x => x.Id == id));
+
+        // compilated query to find one entity by id without tracking
+        private static readonly Func<DbContext, Guid, Task<T?>> FindEntityByIdNoTrackingAsync = EF.CompileAsyncQuery((DbContext context, Guid id) =>
+            context.Set<T>().AsNoTracking().FirstOrDefault(x => x.Id == id));
+
+
+        public virtual async Task<T?> FindOneAsync(Expression<Func<T, bool>> filter, bool trackChanges = true)
         {
             var query = trackChanges ? _dbSet : _dbSet.AsNoTracking();
-            return await query.FirstOrDefaultAsync(expression);
+            return await query.FirstOrDefaultAsync(filter);
         }
 
-        public virtual async Task<T?> FindById(Guid id, bool trackChanges = true)
+        public virtual async Task<T?> FindByIdAsync(Guid id, bool trackChanges = true)
         {
-            return await this.FindOne(x => x.Id == id, trackChanges);
+            return await (
+                trackChanges 
+                    ? FindEntityByIdAsync(_context, id)
+                    : FindEntityByIdNoTrackingAsync(_context, id));
         }
 
-        public virtual async Task<IEnumerable<T>> Find(Expression<Func<T, bool>>? expression = null, bool trackChanges = true)
+        public virtual async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> filter, bool trackChanges = true)
         {
             var query = trackChanges ? _dbSet : _dbSet.AsNoTracking();
-            if(expression is not null)
-            {
-                query.Where(expression);
-            }
+            return await query.Where(filter).ToListAsync();
+        }
+        
+        public virtual async Task<IEnumerable<T>> FindAsync(bool trackChanges = true)
+        {
+            var query = trackChanges ? _dbSet : _dbSet.AsNoTracking();
             return await query.ToListAsync();
         }
         
-        public virtual async Task<PagedResultDto<T>> FindPaged(Expression<Func<T, bool>> expression, int page = 1, int limit = 20)
+        public virtual async Task<PagedResultDto<T>> FindPagedAsync(Expression<Func<T, bool>> filter, int page = 1, int limit = 20, bool trackChanges = true)
         {
             if (page < 1) page = 1;
             if (limit < 1) limit = 20;
-
             int skip = (page - 1) * limit;
-            IQueryable<T> query = _dbSet.AsNoTracking().Where(expression) ;
+
+            IQueryable<T> query = _dbSet.AsNoTracking().Where(filter);
             long totalItems = await query.LongCountAsync();
             IEnumerable<T> data = await query.Skip(skip).Take(limit).ToListAsync();
 
             return new PagedResultDto<T>(data, PagedResultMetadata.Create(currentPage: page, pageSize: data.Count(), totalItems: totalItems));
         }
 
-        public virtual async Task<PagedResultDto<T>> FindPaged(int page = 1, int limit = 20)
+        public virtual async Task<PagedResultDto<T>> FindPagedAsync(int page = 1, int limit = 20, bool trackChanges = true)
         {
             if (page < 1) page = 1;
             if (limit < 1) limit = 20;
-
             int skip = (page - 1) * limit;
+
             IQueryable<T> query = _dbSet.AsNoTracking();
             long totalItems = await query.LongCountAsync();
             IEnumerable<T> data = await query.Skip(skip).Take(limit).ToListAsync();
@@ -64,13 +78,15 @@ namespace Infrastructure.Persistence.Repositories
             return new PagedResultDto<T>(data, PagedResultMetadata.Create(currentPage: page, pageSize: data.Count(), totalItems: totalItems));
         }
 
-        public virtual async Task<long> Count(Expression<Func<T, bool>>? expression)
+        public virtual async Task<long> CountAsync(Expression<Func<T, bool>> filter)
         {
             var query = _dbSet.AsNoTracking();
-            if (expression is not null)
-            {
-                query.Where(expression);
-            }
+            return await query.Where(filter).LongCountAsync();
+        }
+        
+        public virtual async Task<long> CountAsync()
+        {
+            var query = _dbSet.AsNoTracking();
             return await query.LongCountAsync();
         }
 

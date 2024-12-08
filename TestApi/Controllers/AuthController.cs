@@ -24,7 +24,7 @@ namespace TestApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GenerateJwt(Guid userid)
         {
-            UserEntity? user = await _unitOfWork.UserRepository.FindById(userid);
+            UserEntity? user = await _unitOfWork.UserRepository.FindByIdAsync(userid);
 
             if (user is null)
             {

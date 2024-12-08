@@ -28,9 +28,9 @@ namespace Application.Services
         public async Task<UserEntity?> RetrieveUserById(Guid id)
         {
             UserEntity? user;
-            user = await _cacheService.GetOrCreate<UserEntity>(
+            user = await _cacheService.GetOrCreateAsync<UserEntity>(
                 _cacheKeyGenerator.ForEntity<UserEntity>(id.ToString()), 
-                () => _unitOfWork.UserRepository.FindById(id)
+                () => _unitOfWork.UserRepository.FindByIdAsync(id)
             );
             return user ?? default;
         }
@@ -40,7 +40,7 @@ namespace Application.Services
             UserEntity user = _userDomainService.CreateUser(username, password, email, role, _passwordService);
 
             _unitOfWork.UserRepository.Add(user);
-            await _cacheService.Set(_cacheKeyGenerator.ForEntity<UserEntity>(user.Id.ToString()), user);
+            await _cacheService.SetAsync(_cacheKeyGenerator.ForEntity<UserEntity>(user.Id.ToString()), user);
             await _unitOfWork.SaveChangesAsync();
             return user;
         }

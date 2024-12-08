@@ -22,14 +22,14 @@ public class CacheController : ControllerBase
     public async Task<IActionResult> Save([FromBody] Dictionary<string, string> data)
     {
         
-        await Task.WhenAll(data.Keys.Select(async key => await _cacheService.Set(key, data[key])));
+        await Task.WhenAll(data.Keys.Select(async key => await _cacheService.SetAsync(key, data[key])));
         return Ok();
     }
 
     [HttpGet("Retrieve")]
     public async Task<IActionResult> Retrieve(string key)
     {
-        var value = await _cacheService.Get<string>(key);
+        var value = await _cacheService.GetAsync<string>(key);
         return Ok(value);
     }
 }

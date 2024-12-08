@@ -21,7 +21,7 @@ namespace Infrastructure.Cache
             DefaultExpiry = TimeSpan.FromSeconds(expiry > 0 ? expiry : 300);
         }
 
-        public async Task<T?> Get<T>(string key)
+        public async Task<T?> GetAsync<T>(string key)
         {
             try
             {
@@ -39,7 +39,7 @@ namespace Infrastructure.Cache
             }
         }
 
-        public async Task Set<T>(string key, T value, TimeSpan? expiry = null)
+        public async Task SetAsync<T>(string key, T value, TimeSpan? expiry = null)
         {
             try
             {
@@ -52,25 +52,25 @@ namespace Infrastructure.Cache
             }
         }
 
-        public async Task<bool> Exists(string key)
+        public async Task<bool> ExistsAsync(string key)
         {
             return await _db.KeyExistsAsync(key);
         }
 
-        public async Task<T> GetOrCreate<T>(string key, Func<Task<T>> createItem, TimeSpan? expiry = null)
+        public async Task<T> GetOrCreateAsync<T>(string key, Func<Task<T>> createItem, TimeSpan? expiry = null)
         {
-            var cachedItem = await Get<T>(key);
+            var cachedItem = await GetAsync<T>(key);
             if (cachedItem is not null)
             {
                 return cachedItem;
             }
 
             var newItem = await createItem();
-            await Set(key, newItem, expiry ?? DefaultExpiry);
+            await SetAsync(key, newItem, expiry ?? DefaultExpiry);
             return newItem;
         }
 
-        public async Task Remove(string key)
+        public async Task RemoveAsync(string key)
         {
             try
             {

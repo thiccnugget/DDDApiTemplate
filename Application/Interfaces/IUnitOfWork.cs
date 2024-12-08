@@ -4,9 +4,9 @@
     {
         IUserRepository UserRepository { get; }
         Task<int> SaveChangesAsync();
-        Task BeginTransaction();
-        Task CommitTransaction();
-        Task RollbackTransaction();
-        Task<int> SaveAsTransaction();
+        Task BeginTransactionAsync();
+        Task CommitTransactionAsync();
+        Task RollbackTransactionAsync();
+        Task<int> SaveAsTransactionAsync();
     }
 }

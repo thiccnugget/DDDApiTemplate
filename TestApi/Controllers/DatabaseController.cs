@@ -21,21 +21,21 @@ namespace TestApi.Controllers
         public async Task<IActionResult> Save([FromBody]UserEntity user)
         {
             _unitOfWork.UserRepository.Add(user);
-            await _unitOfWork.SaveAsTransaction();
+            await _unitOfWork.SaveAsTransactionAsync();
             return Ok(user.Id);
         }
 
         [HttpGet("Retrieve")]
         public async Task<IActionResult> Get()
         {
-            IEnumerable<UserEntity> user = await _unitOfWork.UserRepository.Find();
+            IEnumerable<UserEntity> user = await _unitOfWork.UserRepository.FindAsync();
             return Ok(user);
         }
 
         [HttpGet("Retrieve/{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
-            UserEntity? user = await _unitOfWork.UserRepository.FindById(id);
+            UserEntity? user = await _unitOfWork.UserRepository.FindByIdAsync(id);
             return user is null ? NotFound() : Ok(user);
         }
     }

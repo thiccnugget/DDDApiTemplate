@@ -25,12 +25,12 @@ public class UnitOfWork : IUnitOfWork
         return await _context.SaveChangesAsync();
     }
 
-    public async Task BeginTransaction()
+    public async Task BeginTransactionAsync()
     {
         _transaction = await _context.Database.BeginTransactionAsync();
     }
 
-    public async Task CommitTransaction()
+    public async Task CommitTransactionAsync()
     {
         try
         {
@@ -39,7 +39,7 @@ public class UnitOfWork : IUnitOfWork
         catch(Exception ex)
         {
             _logger.LogError("Rolling back transaction {@transactionId}. Error: {@error}", _transaction?.TransactionId, ex.Message);
-            await this.RollbackTransaction();
+            await this.RollbackTransactionAsync();
         }
         finally
         {
@@ -50,7 +50,7 @@ public class UnitOfWork : IUnitOfWork
         }
     }
 
-    public async Task RollbackTransaction()
+    public async Task RollbackTransactionAsync()
     {
         try
         {
@@ -65,19 +65,19 @@ public class UnitOfWork : IUnitOfWork
         }
     }
 
-    public async Task<int> SaveAsTransaction()
+    public async Task<int> SaveAsTransactionAsync()
     {
-        await this.BeginTransaction();
+        await this.BeginTransactionAsync();
         try
         {
             var result = await this.SaveChangesAsync();
-            await this.CommitTransaction();
+            await this.CommitTransactionAsync();
             return result;
         }
         catch(Exception ex)
         {
             _logger.LogError("Rolling back transaction {@transactionId}. Error: {@error}", _transaction?.TransactionId, ex.Message);
-            await this.RollbackTransaction();
+            await this.RollbackTransactionAsync();
             throw;
         }
     }

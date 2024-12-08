@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Infrastructure.Persistence.Queries.UserQueries;
 
 namespace Infrastructure.Persistence.Repositories
 {
@@ -10,9 +11,12 @@ namespace Infrastructure.Persistence.Repositories
         {
         }
 
-        public async Task<UserEntity?> FindByUsername(string username)
+        public async Task<UserEntity?> FindByUsernameAsync(string username, bool trackChanges = true)
         {
-            return await this.FindOne(x => x.Username == username);
+            return await (
+                trackChanges
+                    ? UserQueries.FindUserByUsernameAsync(this._context, username)
+                    : UserQueries.FindUserByUsernameNoTrackingAsync(this._context, username));
         }
     }
 }

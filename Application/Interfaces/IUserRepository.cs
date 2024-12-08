@@ -9,6 +9,6 @@ namespace Application.Interfaces
 {
     public interface IUserRepository : IRepository<UserEntity>
     {
-        public Task<UserEntity?> FindByUsername(string username);
+        public Task<UserEntity?> FindByUsernameAsync(string username, bool trackChanges = true);
     }
 }
