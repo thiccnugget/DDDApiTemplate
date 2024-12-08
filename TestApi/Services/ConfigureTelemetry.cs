@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using System.Diagnostics.Metrics;
 
 namespace TestApi.Services
 {
@@ -13,6 +14,7 @@ namespace TestApi.Services
             if (!string.IsNullOrEmpty(endpoint))
             {
                 Uri optlEndpoint = new Uri(endpoint);
+
 
                 services.AddOpenTelemetry()
                     .WithMetrics(metrics => metrics

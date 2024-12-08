@@ -30,7 +30,7 @@ namespace TestApi.Services
             });
 
             // Configure JWT authentication
-            JwtOptions jwtOptions = config.GetSection("JwtOptions").Get<JwtOptions>();
+            JwtOptions jwtOptions = config.GetSection("Jwt").Get<JwtOptions>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
