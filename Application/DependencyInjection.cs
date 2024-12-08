@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Options;
 using Application.Services;
 using Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
@@ -17,6 +18,11 @@ namespace Application
         {
             services.AddScoped<UserAppService>();
             services.AddScoped<IAuthService, AuthService>();
+
+            // Options pattern for JWTs
+            services.AddOptions<JwtOptions>().BindConfiguration("Jwt")
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
 
             return services;
         }

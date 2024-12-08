@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Application.Options;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
 using System.Text;
 
 namespace TestApi.Services
@@ -10,17 +10,10 @@ namespace TestApi.Services
     {
         public static IServiceCollection ConfigureAuth(this IServiceCollection services, IConfiguration config)
         {
-            // Configure JWT authentication
-            var jwtSettings = config.GetSection("JwtSettings");
-            string? secretKey = jwtSettings.GetValue<string>("SecretKey");
-
-            if(string.IsNullOrEmpty(secretKey))
-            {
-                throw new InvalidOperationException("JWT Secret key is missing");
-            }
-
+            // Add authorization policies as needed
             services.AddAuthorization(options =>
             {
+                // Default policy is applied when no policy is specified in the [Authorize] attribute
                 options.DefaultPolicy = new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()
                     .Build();
@@ -34,9 +27,10 @@ namespace TestApi.Services
                     policy
                     .RequireAuthenticatedUser()
                     .RequireRole("User"));
-
             });
 
+            // Configure JWT authentication
+            JwtOptions jwtOptions = config.GetSection("JwtOptions").Get<JwtOptions>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -48,11 +42,9 @@ namespace TestApi.Services
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = config["JwtSettings:Issuer"],
-                    ValidAudience = config["JwtSettings:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(config["JwtSettings:SecretKey"] ?? throw new InvalidOperationException("JWT Key not found"))),
-                    
+                    ValidIssuer = jwtOptions.Issuer,
+                    ValidAudience = jwtOptions.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
                 };
             });
 
