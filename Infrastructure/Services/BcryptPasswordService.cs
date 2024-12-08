@@ -1,39 +1,27 @@
 ﻿using Domain.Interfaces;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Infrastructure.Services
 {
 
     public class BcryptPasswordService : IPasswordService
     {
-        private readonly string _pepper;
         private const int WorkFactor = 15;
-
-        public BcryptPasswordService(string pepper)
-        {
-            _pepper = pepper ?? throw new ArgumentNullException(nameof(pepper));
-        }
 
         public string GenerateSalt()
         {
             return BCrypt.Net.BCrypt.GenerateSalt(WorkFactor);
         }
 
-        public string HashPassword(string password)
+        public string HashPassword([Required, DisallowNull] string password)
         {
-            if (string.IsNullOrEmpty(password))
-                throw new ArgumentNullException(nameof(password));
-
-            return BCrypt.Net.BCrypt.EnhancedHashPassword(password.Concat(_pepper).ToString(), WorkFactor);
+            return BCrypt.Net.BCrypt.EnhancedHashPassword(password, WorkFactor);
         }
 
-        public bool VerifyPassword(string password, string hashedPassword)
+        public bool VerifyPassword([Required, DisallowNull] string password, [Required, DisallowNull] string hashedPassword)
         {
-            if (string.IsNullOrEmpty(password))
-                throw new ArgumentNullException(nameof(password));
-            if (string.IsNullOrEmpty(hashedPassword))
-                throw new ArgumentNullException(nameof(hashedPassword));
-
-            return BCrypt.Net.BCrypt.EnhancedVerify(password.Concat(_pepper).ToString(), hashedPassword);
+            return BCrypt.Net.BCrypt.EnhancedVerify(password, hashedPassword);
         }
     }
 }

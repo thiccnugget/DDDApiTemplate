@@ -22,9 +22,9 @@ namespace Infrastructure
 
             services.AddTransient<ICacheKeyGenerator, CacheKeyGenerator>();
 
-            services.AddSingleton<IPasswordService>(new BcryptPasswordService(config.GetValue<string>("Passwords:Pepper")));
+            services.AddSingleton<IPasswordService, BcryptPasswordService>();
 
-            // return the services so we can chain this method
+            // return the services collection so we can chain this method in the Program.cs file
             return services;
         }
     }
