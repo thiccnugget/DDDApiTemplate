@@ -31,17 +31,19 @@ namespace Application.Services
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim("name", user.Username),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim("role", user.Role)
-            }),
+                Subject = new ClaimsIdentity(
+                [
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                    new Claim(JwtRegisteredClaimNames.Nickname, user.Username),
+                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                    new Claim("roles", user.Role),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                ]),
                 Expires = DateTime.UtcNow.AddMinutes(_jwtOptions.Expiration),
+                IssuedAt = DateTime.UtcNow,
                 Issuer = _jwtOptions.Issuer,
                 Audience = _jwtOptions.Audience,
-                SigningCredentials = credentials
+                SigningCredentials = credentials,
             };
 
             var handler = new JsonWebTokenHandler();

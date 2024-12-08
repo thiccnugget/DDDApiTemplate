@@ -30,7 +30,8 @@ namespace TestApi.Services
             });
 
             // Configure JWT authentication
-            JwtOptions jwtOptions = config.GetSection("Jwt").Get<JwtOptions>();
+            JwtOptions jwtOptions = config.GetSection("Jwt").Get<JwtOptions>() ?? throw new NullReferenceException("Jwt config section is not configured");
+
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
