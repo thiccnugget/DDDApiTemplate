@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Domain.Entities
+﻿namespace Domain.Entities
 {
-    public class UserEntity : BaseEntity
+    public class UserEntity : BaseEntity<Guid>
     {
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public string Salt { get; set; }
-        public string Email { get; set; }
-        public string Role { get; set; }
+        public string Username { get; set; } = default!;
+        public string Password { get; set; } = default!;
+        public string Salt { get; set; } = default!;
+        public string Email { get; set; } = default!;
+        public string Role { get; set; } = default!;
     }
 }

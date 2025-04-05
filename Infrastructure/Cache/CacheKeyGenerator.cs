@@ -1,6 +1,4 @@
 ﻿using Application.Interfaces;
-using Domain.Entities;
-
 namespace Infrastructure.Cache
 {
     public class CacheKeyGenerator : ICacheKeyGenerator
@@ -13,14 +11,14 @@ namespace Infrastructure.Cache
             return string.Join(Separator, new[] { prefix }.Concat(sanitizedParts));
         }
 
-        public string ForEntity<T>(string id) where T : BaseEntity
+        public string ForObject<T>(string identifier) where T : class
         {
-            return Build(typeof(T).Name.ToLowerInvariant(), id);
+            return Build(typeof(T).Name.ToLowerInvariant(), identifier.ToString());
         }
 
-        public string ForCollection<T>(string? filter = null) where T : IEnumerable<T>
+        public string ForCollection<T>(string filter = "all") where T : IEnumerable<T>
         {
-            return Build($"{typeof(T).Name.ToLowerInvariant()}_list", filter ?? "all");
+            return Build($"{typeof(T).Name.ToLowerInvariant()}_list", filter);
         }
     }
 }

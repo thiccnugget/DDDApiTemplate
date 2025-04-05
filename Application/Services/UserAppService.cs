@@ -15,7 +15,13 @@ namespace Application.Services
         private readonly UserDomainService _userDomainService;
         private readonly IPasswordService _passwordService;
 
-        public UserAppService(ILogger<UserAppService> logger, IUnitOfWork unitOfWork, ICacheService cacheService, ICacheKeyGenerator cacheKeyGenerator, UserDomainService userDomainService, IPasswordService passwordService)
+        public UserAppService(ILogger<UserAppService> logger, 
+            IUnitOfWork unitOfWork, 
+            ICacheService cacheService, 
+            ICacheKeyGenerator cacheKeyGenerator,
+            UserDomainService userDomainService, 
+            IPasswordService passwordService
+            )
         {
             _logger = logger;
             _userDomainService = userDomainService;
@@ -29,7 +35,7 @@ namespace Application.Services
         {
             UserEntity? user;
             user = await _cacheService.GetOrCreateAsync<UserEntity>(
-                _cacheKeyGenerator.ForEntity<UserEntity>(id.ToString()), 
+                _cacheKeyGenerator.ForObject<UserEntity>(id.ToString()), 
                 () => _unitOfWork.UserRepository.FindByIdAsync(id)
             );
             return user ?? default;
@@ -40,7 +46,7 @@ namespace Application.Services
             UserEntity user = _userDomainService.CreateUser(username, password, email, role, _passwordService);
 
             _unitOfWork.UserRepository.Add(user);
-            await _cacheService.SetAsync(_cacheKeyGenerator.ForEntity<UserEntity>(user.Id.ToString()), user);
+            await _cacheService.SetAsync(_cacheKeyGenerator.ForObject<UserEntity>(user.Id.ToString()), user);
             await _unitOfWork.SaveChangesAsync();
             return user;
         }

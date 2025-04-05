@@ -5,7 +5,7 @@ using Infrastructure.Persistence.Queries.UserQueries;
 
 namespace Infrastructure.Persistence.Repositories
 {
-    public class UserRepository : BaseRepository<UserEntity>, IUserRepository
+    public class UserRepository : BaseRepository<UserEntity, Guid>, IUserRepository
     {
         public UserRepository(DbContext context) : base(context)
         {

@@ -1,7 +1,5 @@
-using Domain.Entities;
-using Microsoft.AspNetCore.Mvc;
 using Application.Interfaces;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace TestApi.Controllers;
 

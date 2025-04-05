@@ -1,7 +1,5 @@
-﻿using Microsoft.Extensions.Options;
-using OpenTelemetry.Metrics;
+﻿using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
-using System.Diagnostics.Metrics;
 
 namespace TestApi.Services
 {
@@ -24,7 +22,13 @@ namespace TestApi.Services
                     )
                     .WithTracing(tracing => tracing
                         .AddHttpClientInstrumentation()
-                        .AddAspNetCoreInstrumentation()
+                        .AddAspNetCoreInstrumentation(options =>
+                        {
+                            options.Filter = httpContext =>
+                            {
+                                return !httpContext.Request.Path.StartsWithSegments("/health");
+                            };
+                        })
                         .AddEntityFrameworkCoreInstrumentation()
                         .AddRedisInstrumentation()
                         .AddOtlpExporter(options => options.Endpoint = optlEndpoint)

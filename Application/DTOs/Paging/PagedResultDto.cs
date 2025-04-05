@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Application.DTOs.Paging
+﻿namespace Application.DTOs.Paging
 {
     public class PagedResultMetadata
     {
@@ -32,10 +26,16 @@ namespace Application.DTOs.Paging
         public IEnumerable<T> Data { get; set; } = new List<T>();
         public PagedResultMetadata Paging { get; set; } = new();
 
-        public PagedResultDto(IEnumerable<T> data, PagedResultMetadata paging)
+        private PagedResultDto(IEnumerable<T> data, PagedResultMetadata paging)
         {
             Data = data;
             Paging = paging;
+        }
+
+        public static PagedResultDto<T> Create(IEnumerable<T> data, int currentPage, int pageSize, long totalItems)
+        {
+            var paging = PagedResultMetadata.Create(currentPage, pageSize, totalItems);
+            return new PagedResultDto<T>(data, paging);
         }
     }
 }

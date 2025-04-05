@@ -4,6 +4,7 @@ using TestApi.Services;
 using Infrastructure;
 using Domain;
 using Application;
+using Serilog.Events;
 using TestApi.Middlewares;
 
 namespace TestApi;
@@ -39,25 +40,37 @@ public class Program
         builder.Services.ConfigureSwaggerUI();
 #endif
 
-        // Build the application once all services are registered
         WebApplication app = builder.Build();
 
 #if DEBUG
         app.UseSwagger();
         app.UseSwaggerUI();
 #endif
-
-        app.UseSerilogRequestLogging();
         app.UseRouting();
 
         // Add middlewares BETWEEN routing and controllers/endpoints
-        app.UseMiddleware<RequestTimingMiddleware>();
+        app.UseMiddleware<ErrorHandlerMiddleware>();
+        app.UseSerilogRequestLogging(options => 
+            options.GetLevel = (httpContext, elapsed, exception) =>
+            {
+                if(exception is not null)
+                {
+                    return LogEventLevel.Error;
+                }
+
+                if (httpContext.Request.Path.StartsWithSegments("/health"))
+                {
+                    return LogEventLevel.Verbose;
+                }
+
+                return LogEventLevel.Information;
+            });
+
         app.UseAuthentication();
         app.UseAuthorization();
         
         app.MapControllers();
         app.AddHealthChecks();
-        app.AddGenericEndpoint();
 
         app.Run();
     }
